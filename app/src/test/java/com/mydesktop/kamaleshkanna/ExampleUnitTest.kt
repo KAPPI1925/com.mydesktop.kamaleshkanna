@@ -58,6 +58,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class MainActivity : ComponentActivity() {
+    private val currentVersion = "1.0-alpha" // Set this to your current app version
     @androidx.test.filters.SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +73,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    // Override back button behavior to handle WebView navigation
+// Override back button behavior to handle WebView navigation
     @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         val webView = webViewRef.value
@@ -88,7 +88,6 @@ class MainActivity : ComponentActivity() {
 
     private val webViewRef = mutableStateOf<WebView?>(null)
 }
-
 // Non-Composable function that handles opening links
 fun OpenLinkInApp(context: Context, url: String) {
     try {
@@ -111,7 +110,6 @@ fun OpenLinkInApp(context: Context, url: String) {
             }
             else -> Intent(Intent.ACTION_VIEW, Uri.parse(url)) // Default behavior for other URLs
         }
-
         val packageManager: PackageManager = context.packageManager
         val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
 
@@ -126,7 +124,6 @@ fun OpenLinkInApp(context: Context, url: String) {
         Toast.makeText(context, "Error opening link: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
-
 @androidx.test.filters.SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +134,6 @@ fun WebViewWithDrawer() {
     var webView: WebView? by remember { mutableStateOf(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-
     Box(modifier = Modifier.fillMaxSize()) {
         if (drawerState.isOpen) {
             Box(
@@ -151,7 +147,6 @@ fun WebViewWithDrawer() {
                     }
             )
         }
-
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -200,7 +195,6 @@ fun WebViewWithDrawer() {
                                             Log.d("WebView", "Page finished: $url")
                                             isLoading = false
                                         }
-
                                         override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
                                             super.onReceivedError(view, errorCode, description, failingUrl)
                                             errorMessage = "Error: Restart the App"
@@ -215,7 +209,6 @@ fun WebViewWithDrawer() {
                             },
                             modifier = Modifier.weight(1f)
                         )
-
                         if (isLoading) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -234,44 +227,27 @@ fun WebViewWithDrawer() {
                             Text(text = errorMessage ?: "Unknown error", style = MaterialTheme.typography.bodyLarge)
                         }
                     }
-
                     NavigationButtonBar(webView, websiteUrl, { errorMessage = null })
                 }
             }
         }
     }
 }
-
 @Composable
 fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
     val context = LocalContext.current  // Get the context here
-
     val menuItems = listOf(
         DrawerItem("Home", Icons.Default.Home, "https://sites.google.com/view/kamalesh-kanna-s/home"),
         DrawerItem("About Me", Icons.Default.Person, "https://sites.google.com/view/kamalesh-kanna-s/about-me"),
         DrawerItem("Publications", Icons.Default.MenuBook, "https://www.researchgate.net/profile/Kamalesh-Kanna/research"),
         DrawerItem("Blog", Icons.Default.RssFeed, "https://example.com/blog"),
         DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-
         DrawerItem("Profile", Icons.Default.AccountCircle, "https://example.com/profile")
     )
-
     val projectItems = listOf(
         DrawerItem("Project 1", Icons.Filled.Person, "https://example.com/project1"),
         DrawerItem("Project 2", Icons.Outlined.Person, "https://example.com/project2")
     )
-
     val socialLinks = listOf(
         "LinkedIn" to "https://www.linkedin.com/in/kamalesh-kanna-s/",
         "ResearchGate" to "https://www.researchgate.net/profile/Kamalesh-Kanna",
@@ -282,9 +258,7 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
         "Instagram" to "https://www.instagram.com/kamaleshkanna_s/",
         "X" to "https://x.com/kamalesh0109",
     )
-
     val textSize = 13.dp // Adjust this value to change text size
-
     ModalDrawerSheet(
         modifier = Modifier
             .fillMaxHeight()
@@ -300,7 +274,6 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                 Text("Kamalesh Kanna", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 15.dp, bottom = 15.dp, start = 15.dp))
                 HorizontalDivider(thickness = 2.dp) // Added Divider below name
             }
-
             // Menu Items
             items(menuItems) { item ->
                 NavigationDrawerItem(
@@ -316,7 +289,6 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                     onClick = { onItemClick(item.url) }
                 )
             }
-
             // Projects Section
             item {
                 Text("Projects", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp, bottom = 5.dp, start = 15.dp))
@@ -335,13 +307,11 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                     onClick = { onItemClick(item.url) }
                 )
             }
-
             // Social Links Section
             item {
                 HorizontalDivider()
                 Text("Social Links", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 5.dp, bottom = 1.dp, start = 15.dp, end = 15.dp))
             }
-
             // Social Links in LazyRow for side-by-side display
             // Social Links in LazyRow for side-by-side display
             item {
@@ -369,7 +339,6 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                 }
                 HorizontalDivider()
             }
-
             // Mail and Update Button Row
             item {
                 Row(
@@ -393,7 +362,6 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                         Spacer(modifier = Modifier.width(9.dp))
                         Text("Mail")
                     }
-
                     FilledTonalButton(
                         onClick = {
                             // Define the update action
@@ -409,9 +377,7 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
         }
     }
 }
-
 data class DrawerItem(val title: String, val icon: Any, val url: String)
-
 @Composable
 fun NavigationButtonBar(webView: WebView?, websiteUrl: String, onErrorMessageReset: () -> Unit) {
     Row(
@@ -423,15 +389,12 @@ fun NavigationButtonBar(webView: WebView?, websiteUrl: String, onErrorMessageRes
         IconButton(onClick = { webView?.goBack() }) {
             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
-
         IconButton(onClick = { onErrorMessageReset(); webView?.loadUrl(websiteUrl) }) {
             Icon(imageVector = Icons.Default.Home, contentDescription = "Home")
         }
-
         IconButton(onClick = { webView?.goForward() }) {
             Icon(imageVector = Icons.AutoMirrored.Default.ArrowForward, contentDescription = "Forward")
         }
-
         IconButton(onClick = { webView?.reload() }) {
             Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
         }

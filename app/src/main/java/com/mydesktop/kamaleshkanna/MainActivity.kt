@@ -1,57 +1,93 @@
 package com.mydesktop.kamaleshkanna
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RssFeed
+import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mydesktop.kamaleshkanna.ui.theme.KamaleshKannaTheme
 import kotlinx.coroutines.launch
+import com.mydesktop.kamaleshkanna.utils.GitHubUpdater.checkForUpdates
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
+    private val currentVersion = "2.0-alpha" // Set this to your current app version
+    @androidx.test.filters.SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -65,25 +101,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    // Override back button behavior to handle WebView navigation
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
-    override fun onBackPressed() {
-        val webView = webViewRef.value
-        if (webView?.canGoBack() == true) {
-            // If WebView can go back, navigate back within the WebView
-            webView.goBack()
-        } else {
-            // Otherwise, use default back press behavior (close the app)
-            super.onBackPressedDispatcher.onBackPressed()
-        }
-    }
-
-    private val webViewRef = mutableStateOf<WebView?>(null)
-}
-
 // Non-Composable function that handles opening links
-fun OpenLinkInApp(context: Context, url: String) {
+private fun OpenLinkInApp(context: Context, url: String) {
     try {
         val intent = when {
             url.contains("linkedin.com") -> {
@@ -120,6 +139,7 @@ fun OpenLinkInApp(context: Context, url: String) {
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -238,33 +258,19 @@ fun WebViewWithDrawer() {
 @Composable
 fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
     val context = LocalContext.current  // Get the context here
+    val lifecycleOwner = LocalLifecycleOwner.current // Get Lifecycle Owner
 
     val menuItems = listOf(
         DrawerItem("Home", Icons.Default.Home, "https://sites.google.com/view/kamalesh-kanna-s/home"),
         DrawerItem("About Me", Icons.Default.Person, "https://sites.google.com/view/kamalesh-kanna-s/about-me"),
         DrawerItem("Publications", Icons.Default.MenuBook, "https://www.researchgate.net/profile/Kamalesh-Kanna/research"),
         DrawerItem("Blog", Icons.Default.RssFeed, "https://example.com/blog"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-        DrawerItem("Contact", Icons.Default.Phone, "https://example.com/contact"),
-
         DrawerItem("Profile", Icons.Default.AccountCircle, "https://example.com/profile")
     )
-
     val projectItems = listOf(
         DrawerItem("Project 1", Icons.Filled.Person, "https://example.com/project1"),
         DrawerItem("Project 2", Icons.Outlined.Person, "https://example.com/project2")
     )
-
     val socialLinks = listOf(
         "LinkedIn" to "https://www.linkedin.com/in/kamalesh-kanna-s/",
         "ResearchGate" to "https://www.researchgate.net/profile/Kamalesh-Kanna",
@@ -389,8 +395,15 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
 
                     FilledTonalButton(
                         onClick = {
-                            // Define the update action
-                            Toast.makeText(context, "No Updates", Toast.LENGTH_SHORT).show()
+                            // Run the update check inside a coroutine
+                            lifecycleOwner.lifecycleScope.launch {
+                                checkForUpdates(
+                                    context,
+                                    "KAPPI1925",
+                                    "com.mydesktop.kamaleshkanna",
+                                    "1.0-alpha"
+                                )
+                            }
                         }
                     ) {
                         Icon(imageVector = Icons.Default.Update, contentDescription = "Update")
@@ -429,4 +442,5 @@ fun NavigationButtonBar(webView: WebView?, websiteUrl: String, onErrorMessageRes
             Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
         }
     }
+}
 }
