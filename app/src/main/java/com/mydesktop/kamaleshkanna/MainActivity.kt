@@ -86,7 +86,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private val currentVersion = "2.0-alpha" // Set this to your current app version
     @androidx.test.filters.SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,45 +100,53 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-// Non-Composable function that handles opening links
-private fun OpenLinkInApp(context: Context, url: String) {
-    try {
-        val intent = when {
-            url.contains("linkedin.com") -> {
-                // If the URL contains "linkedin.com", open the LinkedIn app
-                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    setPackage("com.linkedin.android")
-                }
-            }
-            url.contains("youtube.com") -> {
-                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    setPackage("com.google.android.youtube")
-                }
-            }
-            url.contains("instagram.com") -> {
-                Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    setPackage("com.instagram.android")
-                }
-            }
-            else -> Intent(Intent.ACTION_VIEW, Uri.parse(url)) // Default behavior for other URLs
-        }
 
-        val packageManager: PackageManager = context.packageManager
-        val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-
-        if (activities.isNotEmpty()) {
-            context.startActivity(intent)
-        } else {
-            // Fallback to default browser if app is not installed
-            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(fallbackIntent)
+    // ✅ Function to get the installed app version dynamically
+    private fun getAppVersion(context: Context): String {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName ?: "0.0"  // If versionName is null, default to "0.0"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "0.0" // Default version if retrieval fails
         }
-    } catch (e: Exception) {
-        Toast.makeText(context, "Error opening link: ${e.message}", Toast.LENGTH_SHORT).show()
     }
-}
+    // ✅ Place it below getAppVersion() to maintain structure
+    private fun OpenLinkInApp(context: Context, url: String) {
+        try {
+            val intent = when {
+                url.contains("linkedin.com") -> {
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                        setPackage("com.linkedin.android")
+                    }
+                }
+                url.contains("youtube.com") -> {
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                        setPackage("com.google.android.youtube")
+                    }
+                }
+                url.contains("instagram.com") -> {
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                        setPackage("com.instagram.android")
+                    }
+                }
+                else -> Intent(Intent.ACTION_VIEW, Uri.parse(url)) // Default behavior for other URLs
+            }
+            val packageManager: PackageManager = context.packageManager
+            val activities = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
 
-@SuppressLint("SetJavaScriptEnabled")
+            if (activities.isNotEmpty()) {
+                context.startActivity(intent)
+            } else {
+                val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(fallbackIntent)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error opening link: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -254,6 +261,32 @@ fun WebViewWithDrawer() {
         }
     }
 }
+
+    @Composable
+    fun UpdateButton(context: Context) {
+        FilledTonalButton(
+            onClick = {
+                // Use the lifecycleScope directly for ComponentActivity
+                (context as? ComponentActivity)?.lifecycleScope?.launch {
+                    // Get the current app version dynamically
+                    val currentVersion = (context as? MainActivity)?.getAppVersion(context)
+
+                    // Call checkForUpdates with the current version of the app
+                    checkForUpdates(
+                        context,
+                        "KAPPI1925", // GitHub repo owner
+                        "com.mydesktop.kamaleshkanna", // GitHub repo name
+                        currentVersion ?: "1.0-alpha" // Use the dynamically fetched app version
+                    )
+                }
+            }
+        ) {
+            Icon(imageVector = Icons.Default.Update, contentDescription = "Update")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Update")
+        }
+    }
+
 
 @Composable
 fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
@@ -392,16 +425,19 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                         Spacer(modifier = Modifier.width(9.dp))
                         Text("Mail")
                     }
-
                     FilledTonalButton(
                         onClick = {
-                            // Run the update check inside a coroutine
-                            lifecycleOwner.lifecycleScope.launch {
+                            // Use the lifecycleScope directly for ComponentActivity
+                            lifecycleScope.launch {
+                                // Get the current app version dynamically
+                                val currentVersion = getAppVersion(context)
+
+                                // Call checkForUpdates with the current version of the app
                                 checkForUpdates(
                                     context,
-                                    "KAPPI1925",
-                                    "com.mydesktop.kamaleshkanna",
-                                    "3.0-alpha"
+                                    "KAPPI1925", // GitHub repo owner
+                                    "com.mydesktop.kamaleshkanna", // GitHub repo name
+                                    currentVersion // Use the dynamically fetched app version
                                 )
                             }
                         }
@@ -442,5 +478,4 @@ fun NavigationButtonBar(webView: WebView?, websiteUrl: String, onErrorMessageRes
             Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
         }
     }
-}
-}
+}}
