@@ -401,7 +401,7 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                                     context,
                                     "KAPPI1925",
                                     "com.mydesktop.kamaleshkanna",
-                                    "1.0-alpha"
+                                    "2.0-alpha"
                                 )
                             }
                         }
