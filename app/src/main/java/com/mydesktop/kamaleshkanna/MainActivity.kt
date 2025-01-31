@@ -404,12 +404,12 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                             // Use the lifecycleScope directly for ComponentActivity
                             lifecycleScope.launch {
                                 // Get the current app version dynamically
-                                getAppVersion(context)
+                                val currentVersion = getAppVersion(context)
 
                                 // Call checkForUpdates with the current version of the app
                                 checkForUpdates(
                                     context,
-                                    "3.0-alpha"
+                                    currentVersion // Pass the current version here
                                 )
                             }
                         }
