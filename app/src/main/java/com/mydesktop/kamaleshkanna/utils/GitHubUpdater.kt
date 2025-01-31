@@ -14,7 +14,7 @@ object GitHubUpdater {
 
     private const val GITHUB_API_URL = "https://api.github.com/repos/KAPPI1925/com.mydesktop.kamaleshkanna/releases/latest"
 
-    suspend fun checkForUpdates(context: Context, currentVersion: String, s: String, s1: String) {
+    suspend fun checkForUpdates(context: Context, currentVersion: String) {
         val latestRelease = fetchLatestGitHubRelease()
 
         if (latestRelease != null && latestRelease.version > currentVersion) {

@@ -83,7 +83,6 @@ import com.mydesktop.kamaleshkanna.ui.theme.KamaleshKannaTheme
 import kotlinx.coroutines.launch
 import com.mydesktop.kamaleshkanna.utils.GitHubUpdater.checkForUpdates
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @androidx.test.filters.SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -262,38 +261,13 @@ fun WebViewWithDrawer() {
     }
 }
 
+
     @Composable
-    fun UpdateButton(context: Context) {
-        FilledTonalButton(
-            onClick = {
-                // Use the lifecycleScope directly for ComponentActivity
-                (context as? ComponentActivity)?.lifecycleScope?.launch {
-                    // Get the current app version dynamically
-                    val currentVersion = (context as? MainActivity)?.getAppVersion(context)
-
-                    // Call checkForUpdates with the current version of the app
-                    checkForUpdates(
-                        context,
-                        "KAPPI1925", // GitHub repo owner
-                        "com.mydesktop.kamaleshkanna", // GitHub repo name
-                        currentVersion ?: "1.0-alpha" // Use the dynamically fetched app version
-                    )
-                }
-            }
-        ) {
-            Icon(imageVector = Icons.Default.Update, contentDescription = "Update")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Update")
-        }
-    }
-
-
-@Composable
 fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
     val context = LocalContext.current  // Get the context here
-    val lifecycleOwner = LocalLifecycleOwner.current // Get Lifecycle Owner
+        LocalLifecycleOwner.current // Get Lifecycle Owner
 
-    val menuItems = listOf(
+        val menuItems = listOf(
         DrawerItem("Home", Icons.Default.Home, "https://sites.google.com/view/kamalesh-kanna-s/home"),
         DrawerItem("About Me", Icons.Default.Person, "https://sites.google.com/view/kamalesh-kanna-s/about-me"),
         DrawerItem("Publications", Icons.Default.MenuBook, "https://www.researchgate.net/profile/Kamalesh-Kanna/research"),
@@ -430,14 +404,12 @@ fun NavigationDrawerContent(onItemClick: (String) -> Unit) {
                             // Use the lifecycleScope directly for ComponentActivity
                             lifecycleScope.launch {
                                 // Get the current app version dynamically
-                                val currentVersion = getAppVersion(context)
+                                getAppVersion(context)
 
                                 // Call checkForUpdates with the current version of the app
                                 checkForUpdates(
                                     context,
-                                    "KAPPI1925", // GitHub repo owner
-                                    "com.mydesktop.kamaleshkanna", // GitHub repo name
-                                    currentVersion // Use the dynamically fetched app version
+                                    "3.0-alpha"
                                 )
                             }
                         }

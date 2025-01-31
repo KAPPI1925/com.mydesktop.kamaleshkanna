@@ -12,8 +12,8 @@ android {
         applicationId = "com.mydesktop.kamaleshkanna"
         minSdk = 21
         targetSdk = 35
-        versionCode = 2
-        versionName = "3.0-alpha"
+        versionCode = 3
+        versionName = "v3.0-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
